@@ -64,16 +64,19 @@ def check(oldNotam, oldtfrs):
         i = i + 1
     for i in range(0, len(tfrsnew)):
         temp = tfrsnew[i].split('\n')
-        tfrsnew[i] = temp[2] + ', ' + temp[7] + ', ' + temp[10] + ', ' + temp[13] + ', ' + temp[16] + ', ' + temp[19]
+        tfrsnew[i] = ''
+        for k in range(0, len(temp)):
+            if temp[k] != '':
+                tfrsnew[i] = tfrsnew[i] + ', ' + temp[k]
     for i in news:
-        note = 'New TX Space Ops TFR ' + tfrsnew[i] + '\n'
-        if len(Notamold) > 0:
+        note = 'New TX Space Ops TFR' + tfrsnew[i] + '\n'
+        if Notamold[0] != '0':
             toaster.show_toast("FAA new TFR", Notamnew[i])
         print(note)
     for i in cancs:
-        note = 'TX Space Ops TFR ' + tfrsold[i] + ' has been cancelled \n'
-        if len(Notamold) > 0:
+        if Notamold[0] != '0':
+            note = 'TX Space Ops TFR ' + tfrsold[i] + ' has been cancelled \n'
             toaster.show_toast("FAA cancelled TFR", Notamold[i])
-        print(note)
+            print(note)
     print('Last Checked at', time.ctime())
     threading.Timer(900, check, args = [Notamnew, tfrsnew]).start()
