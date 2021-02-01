@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Feb  1 14:17:29 2021
+Created on Mon Feb  1 18:58:48 2021
 
 @author: Lukas Knöppel
 """
-
 import requests
 from bs4 import BeautifulSoup
 from win10toast import ToastNotifier
@@ -12,6 +11,7 @@ import threading
 import time
 def get_current_Tfrs():
     Notamnew = []
+    tfrs = []
     topNotam = ''
     url = 'https://tfr.faa.gov/tfr2/list.html'
     page = requests.get(url)
@@ -30,11 +30,13 @@ def get_current_Tfrs():
             ty = ty + zeilen[i]
         if st == 'TX' and ty == 'SPACE':  #You can insert any state you want, or simply remove the check for st to get results for space ops tfrs outside of texas
             Notamnew.append(nr)
-    return Notamnew
+            tfrs.append(results.text)
+    return Notamnew, tfrs
 
-def check(oldNotam):
+def check(oldNotam, oldtfrs):
     Notamold = oldNotam
-    Notamnew = get_current_Tfrs()
+    tfrsold = oldtfrs
+    Notamnew, tfrsnew = get_current_Tfrs()
     toaster = ToastNotifier()
     i = 0
     news = []
@@ -60,14 +62,18 @@ def check(oldNotam):
         if t_f == 0:
              cancs.append(i)
         i = i + 1
-        
+    for i in range(0, len(tfrsnew)):
+        temp = tfrsnew[i].split('\n')
+        tfrsnew[i] = temp[2] + ', ' + temp[7] + ', ' + temp[10] + ', ' + temp[13] + ', ' + temp[16] + ', ' + temp[19]
     for i in news:
-        note = 'New TX Space Ops TFR ' + Notamnew[i]
-        toaster.show_toast("FAA TFR", note)
+        note = 'New TX Space Ops TFR ' + tfrsnew[i] + '\n'
+        if len(Notamold) > 0:
+            toaster.show_toast("FAA new TFR", Notamnew[i])
         print(note)
     for i in cancs:
-        note = 'TX Space Ops TFR ' + Notamold[i] + ' has been cancelled'
-        toaster.show_toast("FAA TFR", note)
+        note = 'TX Space Ops TFR ' + tfrsold[i] + ' has been cancelled \n'
+        if len(Notamold) > 0:
+            toaster.show_toast("FAA cancelled TFR", Notamold[i])
         print(note)
     print('Last Checked at', time.ctime())
-    threading.Timer(900, check, args = [Notamnew]).start()
+    threading.Timer(900, check, args = [Notamnew, tfrsnew]).start()
