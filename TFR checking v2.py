@@ -33,7 +33,7 @@ def get_current_Tfrs():
             tfrs.append(results.text)
     return Notamnew, tfrs
 
-def check(oldNotam, oldtfrs):
+def checkTFR(oldNotam, oldtfrs):
     Notamold = oldNotam
     tfrsold = oldtfrs
     Notamnew, tfrsnew = get_current_Tfrs()
@@ -72,11 +72,35 @@ def check(oldNotam, oldtfrs):
         note = 'New TX Space Ops TFR' + tfrsnew[i] + '\n'
         if Notamold[0] != '0':
             toaster.show_toast("FAA new TFR", Notamnew[i])
+        else:
+                checkSpaceX('','')
         print(note)
     for i in cancs:
         if Notamold[0] != '0':
             note = 'TX Space Ops TFR ' + tfrsold[i] + ' has been cancelled \n'
             toaster.show_toast("FAA cancelled TFR", Notamold[i])
             print(note)
+        else:
+            checkSpaceX('','')
     print('Last Checked at', time.ctime())
-    threading.Timer(900, check, args = [Notamnew, tfrsnew]).start()
+    threading.Timer(900, checkTFR, args = [Notamnew, tfrsnew]).start()
+    
+    
+def checkSpaceX(TextOld, DateOld):
+    url = 'https://www.spacex.com/vehicles/starship/'
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, 'html.parser')
+    result = soup.find('div', attrs={'class':'text-columns'})
+    txt = result.text
+    txt2 = txt.split('the SpaceX team')
+    toaster = ToastNotifier()
+    if TextOld != '':
+        if result.text != TextOld:
+            if DateOld != txt2[0]:
+                toaster.show_toast("SpaceX change", "SpaceX has changed the SN9 NET Date")
+            else:
+                toaster.show_toast("SpaceX change", "SpaceX has changed the SN9 Website")
+    threading.Timer(900, checkSpaceX, args = [txt, txt2[0]]).start()
+
+
+        
