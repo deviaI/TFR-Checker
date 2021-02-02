@@ -65,7 +65,7 @@ def check(oldNotam, oldtfrs):
     for i in range(0, len(tfrsnew)):
         temp = tfrsnew[i].split('\n')
         tfrsnew[i] = ''
-        for k in range(0, len(temp)):
+        for k in range(3, len(temp)):
             if temp[k] != '':
                 tfrsnew[i] = tfrsnew[i] + ', ' + temp[k]
     for i in news:
