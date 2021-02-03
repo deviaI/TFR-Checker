@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 from win10toast import ToastNotifier
 import threading
 import time
+import numpy as np
 def get_current_Tfrs():
     Notamnew = []
     tfrs = []
@@ -33,9 +34,21 @@ def get_current_Tfrs():
             tfrs.append(results.text)
     return Notamnew, tfrs
 
-def checkTFR(oldNotam, oldtfrs):
-    Notamold = oldNotam
-    tfrsold = oldtfrs
+def checkTFR():
+    try:
+        temp = np.load('Notams.npz')
+        temp = temp['arr_0']
+        Notamold = temp.tolist()
+        del temp
+    except FileNotFoundError:
+        Notamold = []
+    try:
+        temp = np.load('tfrs.npz')
+        temp = temp['arr_0']
+        tfrsold = temp.tolist()
+        del temp
+    except FileNotFoundError:
+        tfrsold = []
     Notamnew, tfrsnew = get_current_Tfrs()
     toaster = ToastNotifier()
     i = 0
@@ -68,8 +81,6 @@ def checkTFR(oldNotam, oldtfrs):
         for k in range(3, len(temp)):
             if temp[k] != '' and temp[k] != ' New  ':
                 tfrsnew[i] = tfrsnew[i] + ', ' + temp[k]
-    if len(Notamold) == 0:
-         checkSpaceX('','')
     for i in news:
         note = 'New TX Space Ops TFR' + tfrsnew[i] + '\n'
         if len(Notamold) != 0:
@@ -79,11 +90,22 @@ def checkTFR(oldNotam, oldtfrs):
         note = 'TX Space Ops TFR' + tfrsold[i] +'\n' + 'has been cancelled \n'
         toaster.show_toast("FAA cancelled TFR", Notamold[i])
         print(note)
-    print('Last Checked at', time.ctime())
-    threading.Timer(900, checkTFR, args = [Notamnew, tfrsnew]).start()
-    
-    
-def checkSpaceX(TextOld, DateOld):
+
+    np.savez('Notams', Notamnew)
+    np.savez('tfrs', tfrsnew)
+    try:
+        temp = np.load('Text.npz')
+        temp = temp['arr_0']
+        TextOld = temp.tolist()
+        del temp
+    except FileNotFoundError:
+        TextOld = ''
+    try:
+        temp = np.load('Date.npz')
+        temp = temp['arr_0']
+        DateOld = temp.tolist()
+    except FileNotFoundError:
+        DateOld = ''
     url = 'https://www.spacex.com/vehicles/starship/'
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
@@ -94,12 +116,15 @@ def checkSpaceX(TextOld, DateOld):
     if TextOld != '':
         if result.text != TextOld:
             if DateOld != txt2[0]:
-                toaster.show_toast("SpaceX change", "SpaceX has changed the SN9 NET Date")
-                print("SpaceX has changed the SN9 NET Date")
+                toaster.show_toast("SpaceX change", "SpaceX has changed the Starship NET Date")
+                print("SpaceX has changed the Starship NET Date")
             else:
-                toaster.show_toast("SpaceX change", "SpaceX has changed the SN9 Website")
-                print("SpaceX has changed the SN9 Webpage")
-    threading.Timer(900, checkSpaceX, args = [txt, txt2[0]]).start()
+                toaster.show_toast("SpaceX change", "SpaceX has changed the Starship Website")
+                print("SpaceX has changed the Starship Webpage")
+    np.savez('Text', txt)
+    np.savez('Date', txt2[0])
+    print('Last Checked at', time.ctime())
+    threading.Timer(3600, checkTFR).start()
 
 
         
