@@ -30,6 +30,16 @@ def get_current_Tfrs():
         for i in range(37,42):
             ty = ty + zeilen[i]
         if st == 'TX' and ty == 'SPACE':  #You can insert any state you want, or simply remove the check for st to get results for space ops tfrs outside of texas
+            url = 'https://tfr.faa.gov/save_pages/detail_'+ nr.split('/')[0] + '_'+ nr.split('/')[1] +'.html'
+            page = requests.get(url)
+            soup = BeautifulSoup(page.content, 'html.parser')
+            res2 = soup.find('table', attrs = {'width':'830', 'border':'0', 'cellpadding':'2'})
+            temp = res2.text
+            temp = temp.split('Altitude:')[1]
+            temp = temp.split('Effective Date')[0]
+            temp = temp.split('\n')[0]
+            Notamnew.append(nr)
+            tfrs.append(results.text.replace('\r', '') + temp)
             Notamnew.append(nr)
             tfrs.append(results.text)
     return Notamnew, tfrs
