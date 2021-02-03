@@ -66,24 +66,21 @@ def checkTFR(oldNotam, oldtfrs):
         temp = tfrsnew[i].split('\n')
         tfrsnew[i] = ''
         for k in range(3, len(temp)):
-            if temp[k] != '':
+            if temp[k] != '' and temp[k] != ' New  ':
                 tfrsnew[i] = tfrsnew[i] + ', ' + temp[k]
+    if len(Notamold) == 0:
+         checkSpaceX('','')
     for i in news:
         note = 'New TX Space Ops TFR' + tfrsnew[i] + '\n'
-        if Notamold[0] != '0':
+        if len(Notamold) != 0:
             toaster.show_toast("FAA new TFR", Notamnew[i])
-        else:
-                checkSpaceX('','')
         print(note)
     for i in cancs:
-        if Notamold[0] != '0':
-            note = 'TX Space Ops TFR ' + tfrsold[i] + ' has been cancelled \n'
-            toaster.show_toast("FAA cancelled TFR", Notamold[i])
-            print(note)
-        else:
-            checkSpaceX('','')
+        note = 'TX Space Ops TFR' + tfrsold[i] +'\n' + 'has been cancelled \n'
+        toaster.show_toast("FAA cancelled TFR", Notamold[i])
+        print(note)
     print('Last Checked at', time.ctime())
-    threading.Timer(900, checkTFR, args = [Notamnew, tfrsnew]).start()
+    threading.Timer(1800, checkTFR, args = [Notamnew, tfrsnew]).start()
     
     
 def checkSpaceX(TextOld, DateOld):
@@ -98,9 +95,11 @@ def checkSpaceX(TextOld, DateOld):
         if result.text != TextOld:
             if DateOld != txt2[0]:
                 toaster.show_toast("SpaceX change", "SpaceX has changed the SN9 NET Date")
+                print("SpaceX has changed the SN9 NET Date")
             else:
                 toaster.show_toast("SpaceX change", "SpaceX has changed the SN9 Website")
-    threading.Timer(900, checkSpaceX, args = [txt, txt2[0]]).start()
+                print("SpaceX has changed the SN9 Webpage")
+    threading.Timer(1800, checkSpaceX, args = [txt, txt2[0]]).start()
 
 
         
