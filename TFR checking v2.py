@@ -80,7 +80,7 @@ def checkTFR(oldNotam, oldtfrs):
         toaster.show_toast("FAA cancelled TFR", Notamold[i])
         print(note)
     print('Last Checked at', time.ctime())
-    threading.Timer(1800, checkTFR, args = [Notamnew, tfrsnew]).start()
+    threading.Timer(900, checkTFR, args = [Notamnew, tfrsnew]).start()
     
     
 def checkSpaceX(TextOld, DateOld):
@@ -99,7 +99,7 @@ def checkSpaceX(TextOld, DateOld):
             else:
                 toaster.show_toast("SpaceX change", "SpaceX has changed the SN9 Website")
                 print("SpaceX has changed the SN9 Webpage")
-    threading.Timer(1800, checkSpaceX, args = [txt, txt2[0]]).start()
+    threading.Timer(900, checkSpaceX, args = [txt, txt2[0]]).start()
 
 
         
